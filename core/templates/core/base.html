@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Linea 102{% endblock %}</title>
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #1f2933;
+        }
+
+        header {
+            background: #16324f;
+            color: #fff;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header a,
+        header button {
+            color: #fff;
+        }
+
+        main {
+            width: min(920px, calc(100% - 32px));
+            margin: 40px auto;
+        }
+
+        .panel {
+            background: #fff;
+            border: 1px solid #d8dee6;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 8px 24px rgb(15 23 42 / 8%);
+        }
+
+        .auth-panel {
+            max-width: 440px;
+            margin: 0 auto;
+        }
+
+        label {
+            display: block;
+            font-weight: 700;
+            margin: 14px 0 6px;
+        }
+
+        input {
+            box-sizing: border-box;
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #b8c2cc;
+            border-radius: 6px;
+            font: inherit;
+        }
+
+        button,
+        .button {
+            display: inline-block;
+            border: 0;
+            border-radius: 6px;
+            background: #0b6bcb;
+            color: #fff;
+            cursor: pointer;
+            font: inherit;
+            font-weight: 700;
+            margin-top: 18px;
+            padding: 10px 14px;
+            text-decoration: none;
+        }
+
+        .link-button {
+            background: transparent;
+            border: 0;
+            cursor: pointer;
+            font: inherit;
+            margin: 0;
+            padding: 0;
+            text-decoration: underline;
+        }
+
+        .errorlist {
+            color: #b42318;
+            margin: 8px 0;
+            padding-left: 18px;
+        }
+
+        .helptext {
+            color: #52616f;
+            display: block;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .muted {
+            color: #52616f;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <strong>Linea 102</strong>
+        <nav>
+            {% if user.is_authenticated %}
+                <span>{{ user.username }}</span>
+                <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <button class="link-button" type="submit">Cerrar sesion</button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}">Ingresar</a>
+                <a href="{% url 'register' %}">Registrarse</a>
+            {% endif %}
+        </nav>
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

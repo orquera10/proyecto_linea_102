@@ -1,0 +1,15 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Ingresar | Linea 102{% endblock %}
+
+{% block content %}
+<section class="panel auth-panel">
+    <h1>Ingresar</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Ingresar</button>
+    </form>
+    <p class="muted">No tenes cuenta? <a href="{% url 'register' %}">Registrate</a>.</p>
+</section>
+{% endblock %}
