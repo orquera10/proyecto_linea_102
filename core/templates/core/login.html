@@ -2,13 +2,28 @@
 
 {% block title %}Ingresar | Linea 102{% endblock %}
 
+{% block header %}{% endblock %}
+
+{% block main_class %}login-main{% endblock %}
+
 {% block content %}
 <section class="panel auth-panel">
-    <h1>Ingresar</h1>
-    <form method="post">
+    <div class="login-card-header">
+        <div class="brand">
+            <span class="brand-mark">102</span>
+            <span class="brand-text">
+                <span class="brand-title">Linea 102</span>
+                <span class="brand-subtitle">Panel de llamadas</span>
+            </span>
+        </div>
+        <h1>Ingresar al panel</h1>
+        <p>Acceso para usuarios creados desde administracion.</p>
+    </div>
+    <form class="login-form" method="post">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit">Ingresar</button>
     </form>
+    <p class="login-footnote">Usa el usuario asignado por el administrador del sistema.</p>
 </section>
 {% endblock %}

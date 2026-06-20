@@ -12,6 +12,10 @@ class AuthNavigationTests(TestCase):
         response = self.client.get(reverse('login'))
 
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Ingresar al panel')
+        self.assertContains(response, 'Panel de llamadas')
+        self.assertContains(response, 'login-main')
+        self.assertNotContains(response, '<header>', html=True)
         self.assertNotContains(response, 'Registrarse')
         self.assertNotContains(response, 'Registrate')
 

@@ -172,8 +172,48 @@
         }
 
         .auth-panel {
-            max-width: 440px;
+            border: 0;
+            box-shadow: 0 20px 50px rgb(15 23 42 / 14%);
+            max-width: 430px;
             margin: 0 auto;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .login-card-header {
+            background: #16324f;
+            color: #fff;
+            padding: 28px;
+        }
+
+        .login-card-header .brand {
+            margin-bottom: 22px;
+        }
+
+        .login-card-header h1 {
+            font-size: 28px;
+            margin: 0 0 8px;
+        }
+
+        .login-card-header p {
+            color: #d8e6f3;
+            margin: 0;
+        }
+
+        .login-form {
+            padding: 28px;
+        }
+
+        .login-form button {
+            width: 100%;
+        }
+
+        .login-footnote {
+            border-top: 1px solid #d8dee6;
+            color: #52616f;
+            font-size: 13px;
+            margin: 8px 28px 0;
+            padding: 16px 0 24px;
         }
 
         label {
@@ -526,47 +566,55 @@
         .detail-list dd {
             margin: 6px 0 0;
         }
+
+        .login-main {
+            align-items: center;
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
     </style>
 </head>
 <body>
-    <header>
-        <a class="brand" href="{% url 'llamadas:stats' %}">
-            <span class="brand-mark">102</span>
-            <span class="brand-text">
-                <span class="brand-title">Linea 102</span>
-                <span class="brand-subtitle">Panel de llamadas</span>
-            </span>
-        </a>
-        <nav>
-            {% if user.is_authenticated %}
-                <a href="{% url 'llamadas:stats' %}">Estadisticas</a>
-                {% if user.is_staff %}
-                    <a href="{% url 'llamadas:import' %}">Importar CSV</a>
+    {% block header %}
+        <header>
+            <a class="brand" href="{% url 'llamadas:stats' %}">
+                <span class="brand-mark">102</span>
+                <span class="brand-text">
+                    <span class="brand-title">Linea 102</span>
+                    <span class="brand-subtitle">Panel de llamadas</span>
+                </span>
+            </a>
+            <nav>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'llamadas:stats' %}">Estadisticas</a>
+                    {% if user.is_staff %}
+                        <a href="{% url 'llamadas:import' %}">Importar CSV</a>
+                    {% endif %}
+                    <details class="user-menu">
+                        <summary>
+                            <span class="user-avatar">{{ user.username|first }}</span>
+                            <span class="user-name">{{ user.username }}</span>
+                            <span class="user-caret">v</span>
+                        </summary>
+                        <div class="user-menu-panel">
+                            {% if user.is_staff %}
+                                <a href="{% url 'admin:index' %}">Perfil</a>
+                            {% else %}
+                                <span class="menu-muted">Perfil</span>
+                            {% endif %}
+                            <form action="{% url 'logout' %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit">Cerrar sesion</button>
+                            </form>
+                        </div>
+                    </details>
+                {% else %}
+                    <a href="{% url 'login' %}">Ingresar</a>
                 {% endif %}
-                <details class="user-menu">
-                    <summary>
-                        <span class="user-avatar">{{ user.username|first }}</span>
-                        <span class="user-name">{{ user.username }}</span>
-                        <span class="user-caret">v</span>
-                    </summary>
-                    <div class="user-menu-panel">
-                        {% if user.is_staff %}
-                            <a href="{% url 'admin:index' %}">Perfil</a>
-                        {% else %}
-                            <span class="menu-muted">Perfil</span>
-                        {% endif %}
-                        <form action="{% url 'logout' %}" method="post">
-                            {% csrf_token %}
-                            <button type="submit">Cerrar sesion</button>
-                        </form>
-                    </div>
-                </details>
-            {% else %}
-                <a href="{% url 'login' %}">Ingresar</a>
-            {% endif %}
-        </nav>
-    </header>
-    <main>
+            </nav>
+        </header>
+    {% endblock %}
+    <main class="{% block main_class %}{% endblock %}">
         {% if messages %}
             <ul class="messages">
                 {% for message in messages %}
