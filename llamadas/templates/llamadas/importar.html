@@ -1,0 +1,85 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Importar llamadas | Linea 102{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <div class="actions">
+        <div>
+            <h1>Importar CSV de llamadas</h1>
+            <p class="muted">Pantalla de administracion para cargar registros nuevos en la base de datos.</p>
+        </div>
+        <a href="{% url 'llamadas:list' %}">Volver</a>
+    </div>
+
+    <div class="summary-grid">
+        <div class="summary-item">
+            <strong>{{ total_registros|default:0 }}</strong>
+            <span>Registros guardados</span>
+        </div>
+        {% if estadisticas %}
+            <div class="summary-item">
+                <strong>{{ procesados }}</strong>
+                <span>Filas procesadas</span>
+            </div>
+            <div class="summary-item">
+                <strong>{{ creados }}</strong>
+                <span>Nuevos registros</span>
+            </div>
+            <div class="summary-item">
+                <strong>{{ duplicados }}</strong>
+                <span>Duplicados omitidos</span>
+            </div>
+        {% endif %}
+    </div>
+
+    <form id="import-csv-form" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button id="import-submit" type="submit">Importar archivo</button>
+        <div id="processing-status" class="processing-status" role="status" aria-live="polite">
+            <span class="spinner" aria-hidden="true"></span>
+            <span>Procesando registros del CSV...</span>
+        </div>
+    </form>
+
+    {% if estadisticas %}
+        <h2>Resultado</h2>
+        <table class="table">
+            <tbody>
+                <tr><th>Contestadas</th><td>{{ estadisticas.contestadas }}</td></tr>
+                <tr><th>No contestadas</th><td>{{ estadisticas.no_contestadas }}</td></tr>
+                <tr><th>Fallidas</th><td>{{ estadisticas.fallidas }}</td></tr>
+                <tr><th>Ocupadas</th><td>{{ estadisticas.ocupadas }}</td></tr>
+            </tbody>
+        </table>
+    {% endif %}
+
+    {% if errores %}
+        <h2>Filas con errores</h2>
+        <ul class="errorlist">
+            {% for error in errores %}
+                <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <p class="muted">
+        Se toman especialmente las columnas: Tiempo de inicio, Hora de respondida,
+        Hora de finalizacion, Duracion de la llamada, Tiempo de Conversacion,
+        Estado de la llamada, ID unico y Nombre de origen de la troncal.
+    </p>
+</section>
+
+<script>
+    const importForm = document.getElementById('import-csv-form');
+    const importSubmit = document.getElementById('import-submit');
+    const processingStatus = document.getElementById('processing-status');
+
+    importForm.addEventListener('submit', () => {
+        importSubmit.disabled = true;
+        importSubmit.textContent = 'Importando...';
+        processingStatus.classList.add('is-visible');
+    });
+</script>
+{% endblock %}

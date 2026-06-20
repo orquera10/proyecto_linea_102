@@ -1,0 +1,180 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Estadisticas | Linea 102{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <div class="actions">
+        <div>
+            <h1>Estadisticas de llamadas</h1>
+            <p class="muted">Resumen de los registros importados desde CSV.</p>
+        </div>
+    </div>
+
+    <form id="stats-filter-form" method="get" class="filter-bar">
+        <p class="filter-field">
+            <label for="year">Año</label>
+            <select id="year" name="year">
+                <option value="">Todos</option>
+                {% for year in years %}
+                    <option value="{{ year }}" {% if selected_year == year %}selected{% endif %}>{{ year }}</option>
+                {% endfor %}
+            </select>
+        </p>
+        <p class="filter-field">
+            <label for="month">Mes</label>
+            <select id="month" name="month">
+                <option value="">Todos</option>
+                {% for value, label in months %}
+                    <option value="{{ value }}" {% if selected_month == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </p>
+        <p class="filter-field">
+            <label for="day">Dia</label>
+            <select id="day" name="day">
+                <option value="" {% if not selected_day %}selected{% endif %}>Todos</option>
+                {% for day in days %}
+                    <option value="{{ day }}" {% if selected_day == day %}selected{% endif %}>{{ day }}</option>
+                {% endfor %}
+            </select>
+        </p>
+        <p class="filter-action">
+            <a class="button" href="{% url 'llamadas:stats' %}">Limpiar</a>
+        </p>
+    </form>
+
+    <div class="summary-grid">
+        <div class="summary-item">
+            <strong>{{ total }}</strong>
+            <span>Total de llamadas</span>
+        </div>
+        <div class="summary-item">
+            <strong>{{ porcentaje_atendidas }}%</strong>
+            <span>Llamadas atendidas</span>
+        </div>
+        <div class="summary-item">
+            <strong>{{ porcentaje_no_atendidas }}%</strong>
+            <span>Llamadas no atendidas</span>
+        </div>
+        <div class="summary-item">
+            <strong>{{ duracion_promedio }}</strong>
+            <span>Duracion promedio</span>
+        </div>
+        <div class="summary-item">
+            <strong>{{ conversacion_promedio }}</strong>
+            <span>Conversacion promedio</span>
+        </div>
+    </div>
+
+    <div class="chart-grid">
+        <section class="chart-panel">
+            <h2>Llamadas por tipo</h2>
+            {% if estados %}
+                <div class="type-chart">
+                    {% for estado in estados %}
+                        <div class="type-bar" aria-label="{{ estado.label }}: {{ estado.count }}">
+                            <strong class="type-value">{{ estado.count }}</strong>
+                            <div class="type-stage">
+                                <div class="type-fill" style="height: {{ estado.bar_height }}%; background: {{ estado.color }};"></div>
+                            </div>
+                            <span class="type-label">{{ estado.label }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="muted">No hay registros para mostrar.</p>
+            {% endif %}
+        </section>
+
+        <section class="chart-panel">
+            <h2>{{ serie_titulo }}</h2>
+            {% if serie %}
+                <svg class="line-chart" viewBox="0 0 720 240" role="img" aria-label="{{ serie_titulo }}">
+                    <line class="line-chart-grid" x1="34" y1="178" x2="686" y2="178"></line>
+                    <line class="line-chart-grid" x1="34" y1="99" x2="686" y2="99"></line>
+                    <line class="line-chart-grid" x1="34" y1="20" x2="686" y2="20"></line>
+                    <polygon class="line-chart-area" points="{{ line_area_points }}"></polygon>
+                    <polyline class="line-chart-line" points="{{ line_points }}"></polyline>
+                    {% for item in serie %}
+                        <circle class="line-chart-point" cx="{{ item.point_x }}" cy="{{ item.point_y }}" r="4"></circle>
+                        {% if item.total %}
+                            <text class="line-chart-value" x="{{ item.point_x }}" y="{{ item.label_y }}" text-anchor="middle">{{ item.total }}</text>
+                        {% endif %}
+                        {% if forloop.counter0|divisibleby:2 %}
+                            <text class="line-chart-label" x="{{ item.point_x }}" y="214" text-anchor="middle">{{ item.label }}</text>
+                        {% endif %}
+                    {% endfor %}
+                </svg>
+            {% else %}
+                <p class="muted">No hay registros para mostrar.</p>
+            {% endif %}
+        </section>
+
+        <section class="chart-panel">
+            <h2>Llamadas efectivas (mayores a 2min)</h2>
+            <div class="type-chart compact-chart">
+                {% for item in efectivas %}
+                    <div class="type-bar" aria-label="{{ item.label }}: {{ item.count }}">
+                        <strong class="type-value">{{ item.count }}</strong>
+                        <div class="type-stage">
+                            <div class="type-fill" style="height: {{ item.bar_height }}%; background: {{ item.color }};"></div>
+                        </div>
+                        <span class="type-label">{{ item.label }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+
+    <section class="chart-panel records-panel">
+        <div class="actions">
+            <div>
+                <h2>Registros de llamadas</h2>
+                <p class="muted">Mostrando {{ registros_mostrados }} de {{ total }} registros filtrados.</p>
+            </div>
+        </div>
+
+        {% if registros %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Inicio</th>
+                        <th>Origen</th>
+                        <th>Destino</th>
+                        <th>Estado</th>
+                        <th>Duracion</th>
+                        <th>Conversacion</th>
+                        <th>Efectiva</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for registro in registros %}
+                        <tr>
+                            <td>{{ registro.inicio|date:"d/m/Y H:i" }}</td>
+                            <td>{{ registro.numero_origen|default:"-" }}</td>
+                            <td>{{ registro.numero_destino|default:"-" }}</td>
+                            <td><span class="badge status-badge" style="background: {{ registro.estado_color }};">{{ registro.estado }}</span></td>
+                            <td>{{ registro.duracion }}</td>
+                            <td>{{ registro.conversacion }}</td>
+                            <td><span class="badge status-badge" style="background: {{ registro.efectiva_color }};">{{ registro.efectiva }}</span></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="muted">No hay registros para los filtros seleccionados.</p>
+        {% endif %}
+    </section>
+</section>
+
+<script>
+    const statsFilterForm = document.getElementById('stats-filter-form');
+
+    statsFilterForm.querySelectorAll('select').forEach((select) => {
+        select.addEventListener('change', () => {
+            statsFilterForm.submit();
+        });
+    });
+</script>
+{% endblock %}

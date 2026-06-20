@@ -1,0 +1,44 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Detalle de llamada | Linea 102{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <div class="actions">
+        <div>
+            <h1>{{ informe.motivo }}</h1>
+            <p class="muted">{{ informe.fecha }} {{ informe.hora|time:"H:i" }} · {{ informe.get_tipo_display }}</p>
+        </div>
+        <a class="button" href="{% url 'llamadas:update' informe.pk %}">Editar</a>
+    </div>
+
+    <dl class="detail-list">
+        <dt>Estado</dt>
+        <dd><span class="badge">{{ informe.get_estado_display }}</span></dd>
+
+        <dt>Telefono</dt>
+        <dd>{{ informe.telefono|default:"Sin dato" }}</dd>
+
+        <dt>Nombre del llamante</dt>
+        <dd>{{ informe.nombre_llamante|default:"Sin dato" }}</dd>
+
+        <dt>Descripcion</dt>
+        <dd>{{ informe.descripcion|linebreaks }}</dd>
+
+        <dt>Intervencion</dt>
+        <dd>{{ informe.intervencion|default:"Sin registro"|linebreaks }}</dd>
+
+        <dt>Seguimiento</dt>
+        <dd>
+            {% if informe.requiere_seguimiento %}
+                Requiere seguimiento{% if informe.fecha_seguimiento %} el {{ informe.fecha_seguimiento }}{% endif %}
+            {% else %}
+                No requiere seguimiento
+            {% endif %}
+        </dd>
+
+        <dt>Cargado por</dt>
+        <dd>{{ informe.creado_por.username }}</dd>
+    </dl>
+</section>
+{% endblock %}

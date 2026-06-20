@@ -1,42 +1,54 @@
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.test import TestCase
-from django.urls import reverse
+from django.urls import NoReverseMatch, reverse
 
 
-class RegisterViewTests(TestCase):
-    def test_register_creates_user_and_logs_in(self):
-        response = self.client.post(
-            reverse('register'),
-            {
-                'username': 'usuario',
-                'email': 'usuario@example.com',
-                'password1': 'ClaveSegura123',
-                'password2': 'ClaveSegura123',
-            },
-        )
+class AuthNavigationTests(TestCase):
+    def test_register_route_is_removed(self):
+        with self.assertRaises(NoReverseMatch):
+            reverse('register')
 
-        self.assertRedirects(response, reverse('home'))
-        self.assertTrue(User.objects.filter(username='usuario').exists())
+    def test_login_page_does_not_offer_public_registration(self):
+        response = self.client.get(reverse('login'))
 
-    def test_register_rejects_duplicate_email(self):
-        User.objects.create_user(
-            username='existente',
-            email='usuario@example.com',
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'Registrarse')
+        self.assertNotContains(response, 'Registrate')
+
+    def test_login_redirects_to_stats(self):
+        get_user_model().objects.create_user(
+            username='operador',
             password='ClaveSegura123',
         )
 
         response = self.client.post(
-            reverse('register'),
-            {
-                'username': 'nuevo',
-                'email': 'usuario@example.com',
-                'password1': 'ClaveSegura123',
-                'password2': 'ClaveSegura123',
-            },
+            reverse('login'),
+            {'username': 'operador', 'password': 'ClaveSegura123'},
         )
 
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Ya existe un usuario con este email.')
-        self.assertFalse(User.objects.filter(username='nuevo').exists())
+        self.assertRedirects(response, reverse('llamadas:stats'))
 
-# Create your tests here.
+    def test_navbar_shows_brand_and_user_menu(self):
+        user = get_user_model().objects.create_user(
+            username='operador',
+            password='ClaveSegura123',
+        )
+        self.client.force_login(user)
+
+        response = self.client.get(reverse('llamadas:stats'))
+
+        self.assertContains(response, 'Panel de llamadas')
+        self.assertContains(response, 'user-menu')
+        self.assertContains(response, 'Cerrar sesion')
+
+    def test_staff_profile_link_goes_to_admin(self):
+        user = get_user_model().objects.create_user(
+            username='admin',
+            password='ClaveSegura123',
+            is_staff=True,
+        )
+        self.client.force_login(user)
+
+        response = self.client.get(reverse('llamadas:stats'))
+
+        self.assertContains(response, f'href="{reverse("admin:index")}"')

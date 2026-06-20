@@ -1,0 +1,66 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Llamadas | Linea 102{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <div class="actions">
+        <div>
+            <h1>Informes de llamadas</h1>
+            <p class="muted">Registro y seguimiento de comunicaciones recibidas.</p>
+        </div>
+        <div>
+            {% if user.is_staff %}
+                <a class="button" href="{% url 'llamadas:import' %}">Importar CSV</a>
+            {% endif %}
+            <a class="button" href="{% url 'llamadas:create' %}">Nuevo informe</a>
+        </div>
+    </div>
+
+    <form method="get" class="field-grid">
+        <p>
+            <label for="q">Buscar</label>
+            <input id="q" type="search" name="q" value="{{ q }}" placeholder="Motivo, telefono, descripcion">
+        </p>
+        <p>
+            <label for="estado">Estado</label>
+            <select id="estado" name="estado">
+                <option value="">Todos</option>
+                {% for value, label in estados %}
+                    <option value="{{ value }}" {% if estado_actual == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </p>
+        <p>
+            <button type="submit">Filtrar</button>
+        </p>
+    </form>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Motivo</th>
+                <th>Tipo</th>
+                <th>Estado</th>
+                <th>Seguimiento</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for informe in informes %}
+                <tr>
+                    <td>{{ informe.fecha }} {{ informe.hora|time:"H:i" }}</td>
+                    <td><a href="{{ informe.get_absolute_url }}">{{ informe.motivo }}</a></td>
+                    <td>{{ informe.get_tipo_display }}</td>
+                    <td><span class="badge">{{ informe.get_estado_display }}</span></td>
+                    <td>{% if informe.requiere_seguimiento %}Si{% else %}No{% endif %}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5">Todavia no hay informes cargados.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}

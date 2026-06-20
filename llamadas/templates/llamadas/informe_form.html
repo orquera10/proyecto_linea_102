@@ -1,0 +1,33 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Informe de llamada | Linea 102{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <div class="actions">
+        <h1>{% if object %}Editar informe{% else %}Nuevo informe{% endif %}</h1>
+        <a href="{% url 'llamadas:list' %}">Volver</a>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <div class="field-grid">
+            <p>{{ form.fecha.label_tag }} {{ form.fecha }} {{ form.fecha.errors }}</p>
+            <p>{{ form.hora.label_tag }} {{ form.hora }} {{ form.hora.errors }}</p>
+            <p>{{ form.telefono.label_tag }} {{ form.telefono }} {{ form.telefono.errors }}</p>
+            <p>{{ form.nombre_llamante.label_tag }} {{ form.nombre_llamante }} {{ form.nombre_llamante.errors }}</p>
+            <p>{{ form.tipo.label_tag }} {{ form.tipo }} {{ form.tipo.errors }}</p>
+            <p>{{ form.estado.label_tag }} {{ form.estado }} {{ form.estado.errors }}</p>
+        </div>
+        <p>{{ form.motivo.label_tag }} {{ form.motivo }} {{ form.motivo.errors }}</p>
+        <p>{{ form.descripcion.label_tag }} {{ form.descripcion }} {{ form.descripcion.errors }}</p>
+        <p>{{ form.intervencion.label_tag }} {{ form.intervencion }} {{ form.intervencion.errors }}</p>
+        <div class="field-grid">
+            <p>{{ form.requiere_seguimiento.label_tag }} {{ form.requiere_seguimiento }} {{ form.requiere_seguimiento.errors }}</p>
+            <p>{{ form.fecha_seguimiento.label_tag }} {{ form.fecha_seguimiento }} {{ form.fecha_seguimiento.errors }}</p>
+        </div>
+        <button type="submit">Guardar informe</button>
+    </form>
+</section>
+{% endblock %}
