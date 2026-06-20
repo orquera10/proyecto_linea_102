@@ -1,0 +1,11 @@
+.git
+.agents
+.env
+*.sqlite3
+db.sqlite3
+import_llamadas.csv
+__pycache__/
+*.py[cod]
+.pytest_cache/
+staticfiles/
+media/
