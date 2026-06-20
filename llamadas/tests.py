@@ -46,15 +46,15 @@ class InformeLlamadaTests(TestCase):
         self.assertRedirects(response, informe.get_absolute_url())
         self.assertEqual(informe.creado_por, self.user)
 
-    def test_import_button_only_staff_home(self):
+    def test_import_button_only_staff_stats(self):
         self.client.force_login(self.user)
-        response = self.client.get(reverse('home'))
+        response = self.client.get(reverse('llamadas:stats'))
 
         self.assertNotContains(response, 'Importar CSV')
 
         self.user.is_staff = True
         self.user.save()
-        response = self.client.get(reverse('home'))
+        response = self.client.get(reverse('llamadas:stats'))
 
         self.assertContains(response, 'Importar CSV')
 
@@ -63,7 +63,7 @@ class InformeLlamadaTests(TestCase):
 
         response = self.client.get(reverse('llamadas:import'))
 
-        self.assertRedirects(response, reverse('home'))
+        self.assertRedirects(response, reverse('llamadas:stats'))
 
     def test_staff_can_import_only_new_cdr_records(self):
         self.user.is_staff = True

@@ -332,7 +332,7 @@ class ImportarLlamadasView(LoginRequiredMixin, UserPassesTestMixin, View):
     def handle_no_permission(self):
         if self.request.user.is_authenticated:
             messages.error(self.request, 'No tenes permiso para importar llamadas.')
-            return redirect('home')
+            return redirect('llamadas:stats')
         return super().handle_no_permission()
 
     def get(self, request):

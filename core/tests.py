@@ -28,6 +28,17 @@ class AuthNavigationTests(TestCase):
 
         self.assertRedirects(response, reverse('llamadas:stats'))
 
+    def test_home_redirects_authenticated_users_to_stats(self):
+        user = get_user_model().objects.create_user(
+            username='operador',
+            password='ClaveSegura123',
+        )
+        self.client.force_login(user)
+
+        response = self.client.get(reverse('home'))
+
+        self.assertRedirects(response, reverse('llamadas:stats'))
+
     def test_navbar_shows_brand_and_user_menu(self):
         user = get_user_model().objects.create_user(
             username='operador',
